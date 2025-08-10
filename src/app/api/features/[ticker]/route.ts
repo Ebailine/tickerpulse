@@ -1,4 +1,10 @@
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+import { db } from "@/app/lib/db";
+import { NextResponse } from "next/server";
+export const runtime = "nodejs";
 
 import { db } from "@/app/lib/db";
 import { NextResponse } from "next/server";

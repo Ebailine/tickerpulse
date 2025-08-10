@@ -58,14 +58,14 @@ export default function Home() {
 
   // Loaders
   async function refreshNews() {
-    const qs = encodeURIComponent(watchlist.join(","));
-    const [n, s] = await Promise.all([
-      fetch(`/api/news?tickers=${qs}`).then((r) => r.json()),
-      fetch(`/api/sec?tickers=${qs}`).then((r) => r.json()),
-    ]);
-    setNews(n.items);
-    setSec(s.items);
-  }
+  const qs = encodeURIComponent(watchlist.join(","));
+  const [n, s] = await Promise.all([
+    fetch(`/api/news?tickers=${qs}`).then((r) => r.json()),
+    fetch(`/api/sec?tickers=${qs}&forms=10-K,10-Q,8-K&limit=40`).then((r) => r.json()),
+  ]);
+  setNews(n.items);
+  setSec(s.items);
+}
 
   async function refreshPrices() {
     const entries = await Promise.all(

@@ -1,6 +1,7 @@
+// src/app/api/sec/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { parseRss } from "@/app/lib/rss";
-import { TICKER_TO_CIK } from "@/app/lib/tickers";
+import { resolveCik } from "@/app/lib/tickers";
 
 type RssItem = {
   title: string;
@@ -10,27 +11,24 @@ type RssItem = {
 };
 
 async function fetchTickerSec(ticker: string): Promise<Array<RssItem & { ticker: string }>> {
-  const cik = TICKER_TO_CIK[ticker];
+  const cik = await resolveCik(ticker);
   if (!cik) return [];
 
-  // SEC Atom feed for a company
   const url = `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${encodeURIComponent(
     cik
   )}&owner=exclude&count=40&output=atom`;
 
-const res = await fetch(url, {
-  headers: {
-    "User-Agent": "TickerPulse/1.0 (contact: emb486@drexel.edu)",
-    "Accept": "application/atom+xml,application/xml,text/xml;q=0.9,*/*;q=0.8",
-  },
-});
-
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent": "TickerPulse/1.0 (contact: emb486@drexel.edu)",
+      "Accept": "application/atom+xml,application/xml,text/xml;q=0.9,*/*;q=0.8",
+    },
+  });
   if (!res.ok) return [];
 
   const xml = await res.text();
   const items = parseRss(xml) as RssItem[];
 
-  // Attach ticker; keep fields we care about
   return items.map((it: RssItem) => ({ ...it, ticker }));
 }
 

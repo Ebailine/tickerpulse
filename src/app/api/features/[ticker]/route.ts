@@ -4,10 +4,6 @@ export const revalidate = 0;
 
 import { db } from "@/app/lib/db";
 import { NextResponse } from "next/server";
-export const runtime = "nodejs";
-
-import { db } from "@/app/lib/db";
-import { NextResponse } from "next/server";
 
 export async function GET(_: Request, { params }: { params: { ticker: string } }) {
   const t = decodeURIComponent(params.ticker).toUpperCase();
@@ -20,3 +16,4 @@ export async function GET(_: Request, { params }: { params: { ticker: string } }
   const { rows } = await db().query(q, [t]);
   return NextResponse.json({ ticker: t, features: rows });
 }
+

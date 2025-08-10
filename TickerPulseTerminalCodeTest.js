@@ -279,7 +279,7 @@ function DailyBrief({ items }: { items: Item[] }) {
   const text = top.map((i,idx)=>`${idx+1}. ${i.title}${i.ticker?` (${i.ticker})`:''}`).join("\n");
   function copy(){ navigator.clipboard.writeText(text); }
   return (
-    <div className="rounded-xl border bg-white p-4">
+    <div className="rounded-2xl border border-white/20 bg-white/70 backdrop-blur p-4 shadow-soft dark:bg-brand-900/60 dark:border-white/10">
       <h3 className="font-semibold">Daily Brief</h3>
       <p className="mt-1 text-sm text-slate-600">Top 5 headlines from your feed as quick bullets.</p>
       <button onClick={copy} className="mt-3 w-full rounded-lg border px-3 py-2 text-sm hover:bg-slate-50">Copy to clipboard</button>
@@ -289,7 +289,7 @@ function DailyBrief({ items }: { items: Item[] }) {
 
 function InstallCTA(){
   return (
-    <div className="rounded-xl border bg-white p-4">
+    <div className="rounded-2xl border border-white/20 bg-white/70 backdrop-blur p-4 shadow-soft dark:bg-brand-900/60 dark:border-white/10">
       <h3 className="font-semibold">Install TickerPulse</h3>
       <p className="mt-1 text-sm text-slate-600">Use it like a native app. Works great on phones.</p>
       <ul className="mt-2 list-disc pl-5 text-sm text-slate-700">

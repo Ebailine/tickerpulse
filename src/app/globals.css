@@ -3,4 +3,12 @@
 @tailwind utilities;
 
 html, body { height: 100%; }
-body { @apply bg-slate-50 text-slate-900; }
+
+/* Smooth feel */
+* { -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+
+/* Selection */
+::selection { background: rgba(59,130,246,0.25); }
+
+/* Base body color handled in layout via classes */

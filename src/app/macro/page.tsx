@@ -45,7 +45,7 @@ function MacroCard({ s }:{ s: Series }) {
   const yoy = prevVal ? ((value - prevVal) / prevVal) * 100 : 0;
 
   return (
-    <div className="rounded-xl border bg-white p-4">
+    <div className="rounded-2xl border border-white/20 bg-white/70 backdrop-blur p-4 shadow-soft dark:bg-brand-900/60 dark:border-white/10">
       <div className="flex items-center justify-between">
         <div className="font-semibold">{s.title}</div>
         <div className={cls("text-sm font-medium", yoy>=0 ? "text-emerald-700":"text-rose-700")}>

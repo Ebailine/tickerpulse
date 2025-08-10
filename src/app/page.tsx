@@ -4,7 +4,7 @@ import { useMounted, useAutoRefresh } from "@/app/lib/hooks";
 import { cls } from "@/app/lib/ui";
 import TabButton from "@/app/components/TabButton";
 import TickerAdder from "@/app/components/TickerAdder";
-
+import ChartCard from "@/app/components/ChartCard";
 
 type Item = {
   title: string; link: string; pubDate: string;
@@ -18,7 +18,6 @@ type PriceResp = {
 };
 
 export default function Home() {
-  // 1) Mount gate to avoid hydration mismatch
   const mounted = useMounted();
   const [watchlist, setWatchlist] = useState<string[]>([]);
   useEffect(() => {
@@ -31,15 +30,13 @@ export default function Home() {
     }
   }, [mounted]);
 
-  // 2) Rest of state (hook order never changes)
-  const [tab, setTab] = useState<"signals"|"prices"|"news">("signals");
+  const [tab, setTab] = useState<"signals"|"prices"|"news"|"charts">("signals");
   const [news, setNews] = useState<Item[]>([]);
   const [sec, setSec] = useState<Item[]>([]);
   const [prices, setPrices] = useState<Record<string, PriceResp>>({});
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Persist watchlist after mount
   useEffect(() => {
     if (mounted) localStorage.setItem("tp_watchlist", JSON.stringify(watchlist));
   }, [mounted, watchlist]);
@@ -69,9 +66,8 @@ export default function Home() {
     setLoading(false);
   }
 
-  // First load AFTER mounted
   useEffect(() => { if (mounted) refreshAll(); }, [mounted]);
-useAutoRefresh(mounted, refreshAll, 60_000); // refresh every 60s when mounted
+  useAutoRefresh(mounted, refreshAll, 60_000);
 
   const filteredNews = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -107,19 +103,19 @@ useAutoRefresh(mounted, refreshAll, 60_000); // refresh every 60s when mounted
               <TabButton active={tab==="signals"} onClick={()=>setTab("signals")}>Signals (beta)</TabButton>
               <TabButton active={tab==="prices"} onClick={()=>setTab("prices")}>Prices</TabButton>
               <TabButton active={tab==="news"} onClick={()=>setTab("news")}>News & Filings</TabButton>
+              <TabButton active={tab==="charts"} onClick={()=>setTab("charts")}>Charts</TabButton>
             </div>
 
             {tab==="signals" && <SignalsPanel watchlist={watchlist} news={filteredNews} prices={prices} />}
             {tab==="prices"  && <PricesPanel watchlist={watchlist} prices={prices} onReload={refreshPrices}/>}
             {tab==="news"    && <NewsPanel news={filteredNews} sec={sec} q={q} setQ={setQ} />}
+            {tab==="charts"  && <ChartsPanel watchlist={watchlist} prices={prices} />}
           </>
         )}
       </section>
     </main>
   );
 }
-
-/** ------- Panels (unchanged) ------- */
 
 function NewsPanel({ news, sec, q, setQ }:{ news: Item[]; sec: Item[]; q:string; setQ:(v:string)=>void }) {
   return (
@@ -131,7 +127,7 @@ function NewsPanel({ news, sec, q, setQ }:{ news: Item[]; sec: Item[]; q:string;
         </div>
         <ul className="space-y-3">
           {news.map((it, idx) => (
-            <li key={idx} className="rounded-xl border bg-white p-4 shadow-sm">
+            <li key={idx} className="rounded-2xl border border-white/20 bg-white/70 backdrop-blur p-4 shadow-soft dark:bg-brand-900/60 dark:border-white/10 shadow-sm">
               <div className="flex items-center justify-between gap-3">
                 <a href={it.link} target="_blank" className="font-medium hover:underline">{it.title}</a>
                 <span className={cls("text-xs px-2 py-1 rounded-full capitalize",
@@ -152,7 +148,7 @@ function NewsPanel({ news, sec, q, setQ }:{ news: Item[]; sec: Item[]; q:string;
 
       <aside className="space-y-4">
         <DailyBrief items={news} />
-        <div className="rounded-xl border bg-white p-4">
+        <div className="rounded-2xl border border-white/20 bg-white/70 backdrop-blur p-4 shadow-soft dark:bg-brand-900/60 dark:border-white/10">
           <h3 className="font-semibold">Latest SEC filings</h3>
           <ul className="mt-2 space-y-2 text-sm">
             {sec.slice(0,12).map((it, idx) => (
@@ -185,14 +181,14 @@ function PricesPanel({ watchlist, prices, onReload }:{ watchlist:string[]; price
 
 function PriceCard({ data, ticker }:{ data?: PriceResp; ticker: string }) {
   if (!data) return (
-    <div className="rounded-xl border bg-white p-4">
+    <div className="rounded-2xl border border-white/20 bg-white/70 backdrop-blur p-4 shadow-soft dark:bg-brand-900/60 dark:border-white/10">
       <div className="flex items-center justify-between"><div className="font-semibold">{ticker}</div><div className="text-xs text-slate-500">loading…</div></div>
     </div>
   );
   const last = data.last?.toFixed(2);
   const ch = data.changePct?.toFixed(2);
   return (
-    <div className="rounded-xl border bg-white p-4">
+    <div className="rounded-2xl border border-white/20 bg-white/70 backdrop-blur p-4 shadow-soft dark:bg-brand-900/60 dark:border-white/10">
       <div className="flex items-center justify-between">
         <div className="font-semibold">{ticker}</div>
         <div className={cls("text-sm font-medium", data.changePct>=0 ? "text-emerald-700":"text-rose-700")}>{ch}%</div>
@@ -246,7 +242,7 @@ function SignalsPanel({ watchlist, news, prices }:{ watchlist:string[]; news: It
 
   return (
     <div className="mt-4">
-      <div className="rounded-xl border bg-white p-4">
+      <div className="rounded-2xl border border-white/20 bg-white/70 backdrop-blur p-4 shadow-soft dark:bg-brand-900/60 dark:border-white/10">
         <h2 className="text-xl font-semibold">Signal Board (v0 demo)</h2>
         <p className="text-xs text-slate-500 mt-1">Not financial advice. Demo only. Combines news sentiment + 20-day momentum.</p>
         <table className="mt-3 w-full text-sm">
@@ -276,7 +272,7 @@ function DailyBrief({ items }: { items: Item[] }) {
   const text = top.map((i,idx)=>`${idx+1}. ${i.title}${i.ticker?` (${i.ticker})`:''}`).join("\n");
   function copy(){ navigator.clipboard.writeText(text); }
   return (
-    <div className="rounded-xl border bg-white p-4">
+    <div className="rounded-2xl border border-white/20 bg-white/70 backdrop-blur p-4 shadow-soft dark:bg-brand-900/60 dark:border-white/10">
       <h3 className="font-semibold">Daily Brief</h3>
       <p className="mt-1 text-sm text-slate-600">Top 5 headlines from your feed as quick bullets.</p>
       <button onClick={copy} className="mt-3 w-full rounded-lg border px-3 py-2 text-sm hover:bg-slate-50">Copy to clipboard</button>
@@ -286,7 +282,7 @@ function DailyBrief({ items }: { items: Item[] }) {
 
 function InstallCTA(){
   return (
-    <div className="rounded-xl border bg-white p-4">
+    <div className="rounded-2xl border border-white/20 bg-white/70 backdrop-blur p-4 shadow-soft dark:bg-brand-900/60 dark:border-white/10">
       <h3 className="font-semibold">Install TickerPulse</h3>
       <p className="mt-1 text-sm text-slate-600">Use it like a native app. Works great on phones.</p>
       <ul className="mt-2 list-disc pl-5 text-sm text-slate-700">
@@ -294,6 +290,30 @@ function InstallCTA(){
         <li>iPhone: Share → Add to Home Screen</li>
         <li>Android: Add to Home Screen</li>
       </ul>
+    </div>
+  );
+}
+
+function ChartsPanel({
+  watchlist,
+  prices
+}: {
+  watchlist: string[];
+  prices: Record<string, PriceResp>;
+}) {
+  const list = watchlist.slice(0, 4);
+
+  return (
+    <div className="mt-4 grid gap-3 md:grid-cols-2">
+      {list.map((t) => (
+        <ChartCard key={t} ticker={t} series={prices[t]?.series || []} />
+      ))}
+
+      {!list.length && (
+        <div className="text-sm text-slate-600">
+          Add tickers above to see charts.
+        </div>
+      )}
     </div>
   );
 }

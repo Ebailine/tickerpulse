@@ -18,12 +18,13 @@ async function fetchTickerSec(ticker: string): Promise<Array<RssItem & { ticker:
     cik
   )}&owner=exclude&count=40&output=atom`;
 
-  const res = await fetch(url, {
-    headers: {
-      "User-Agent": "TickerPulse/1.0",
-      "Accept": "application/atom+xml,application/xml,text/xml;q=0.9,*/*;q=0.8",
-    },
-  });
+const res = await fetch(url, {
+  headers: {
+    "User-Agent": "TickerPulse/1.0 (contact: emb486@drexel.edu)",
+    "Accept": "application/atom+xml,application/xml,text/xml;q=0.9,*/*;q=0.8",
+  },
+});
+
   if (!res.ok) return [];
 
   const xml = await res.text();

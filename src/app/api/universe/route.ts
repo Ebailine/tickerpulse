@@ -4,10 +4,6 @@ export const revalidate = 0;
 
 import { db } from "@/app/lib/db";
 import { NextResponse } from "next/server";
-export const runtime = "nodejs";
-
-import { db } from "@/app/lib/db";
-import { NextResponse } from "next/server";
 
 export async function GET() {
   const q = `
@@ -19,3 +15,4 @@ export async function GET() {
   const { rows } = await db().query(q);
   return NextResponse.json(rows);
 }
+

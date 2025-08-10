@@ -1,0 +1,10 @@
+export const TICKER_TO_CIK: Record<string, string> = {
+  AAPL: "0000320193",
+  MSFT: "0000789019",
+  GOOGL: "0001652044",
+  AMZN: "0001018724",
+  TSLA: "0001318605",
+  NVDA: "0001045810",
+  META: "0001326801",
+  AMD: "0000002488"
+};
